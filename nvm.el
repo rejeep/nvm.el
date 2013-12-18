@@ -111,6 +111,17 @@ previously used version."
             (nvm-use prev-version))))
     (error "No such version %s" version)))
 
+(defun nvm-use-for (&optional path callback)
+  "Activate Node for PATH or `default-directory'.
+
+This function will look for a .nvmrc file in that path and
+activate the version specified in that file.
+
+If CALLBACK is specified, active in that scope and then reset to
+previously used version."
+
+  )
+
 (provide 'nvm)
 
 ;;; nvm.el ends here

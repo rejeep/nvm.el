@@ -66,26 +66,6 @@
   "Return true if VERSION is installed, false otherwise."
   (-contains? (nvm--installed-versions) version))
 
-(defun nvm--get-env (env)
-  "Get value of environment variable with name ENV."
-  (-last-item
-   (s-split
-    "="
-    (-first
-     (lambda (item)
-       (string= (car (s-split "=" item)) env))
-     process-environment))))
-
-(defun nvm--set-env (env value)
-  "Set environment variable with name ENV to VALUE."
-  (setq
-   process-environment
-   (-remove
-    (lambda (item)
-      (string= (car (s-split "=" item)) env))
-    process-environment))
-  (add-to-list 'process-environment (concat env "=" value)))
-
 (defun nvm-use (version &optional callback)
   "Activate Node VERSION.
 
@@ -93,8 +73,8 @@ If CALLBACK is specified, active in that scope and then reset to
 previously used version."
   (if (nvm--version-installed? version)
       (let ((prev-version nvm-current-version))
-        (nvm--set-env "NVM_BIN" (f-join nvm-dir version "bin"))
-        (nvm--set-env "NVM_PATH" (f-join nvm-dir version "lib" "node"))
+        (setenv "NVM_BIN" (f-join nvm-dir version "bin"))
+        (setenv "NVM_PATH" (f-join nvm-dir version "lib" "node"))
         (let* ((path-re (concat "^" (f-join nvm-dir nvm-version-re "bin") "/?$"))
                (paths
                 (cons
@@ -102,8 +82,8 @@ previously used version."
                  (-reject
                   (lambda (path)
                     (s-matches? path-re path))
-                  (parse-colon-path (nvm--get-env "PATH"))))))
-          (nvm--set-env "PATH" (s-join path-separator paths)))
+                  (parse-colon-path (getenv "PATH"))))))
+          (setenv "PATH" (s-join path-separator paths)))
         (setq nvm-current-version version)
         (when callback
           (unwind-protect

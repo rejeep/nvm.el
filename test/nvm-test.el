@@ -11,12 +11,7 @@
       ,@body)))
 
 (defun should-have-env (env value)
-  (let ((env-matcher
-         (lambda (item)
-           (string= (car (s-split "=" item)) env))))
-    (should (= (-count env-matcher process-environment) 1))
-    (should (string= (-first env-matcher process-environment)
-                     (concat env "=" value)))))
+  (should (string= (getenv env) value)))
 
 (defun should-use-version (version)
   (should-have-env "NVM_BIN" (f-join nvm-dir version "bin"))

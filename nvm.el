@@ -66,11 +66,30 @@
   "Return true if VERSION is installed, false otherwise."
   (-contains? (nvm--installed-versions) version))
 
+(defun nvm--find-exact-version-for (short)
+  "Find most suitable version for SHORT.
+
+SHORT is a string containing major and minor version.  This
+function will return the most recent patch version."
+  (when (s-matches? "^v?[0-9]+\.[0-9]+\\(\.[0-9]+\\)?$" short)
+    (unless (s-starts-with? "v" short)
+      (setq short (concat "v" short)))
+    (let ((versions (nvm--installed-versions)))
+      (if (--first (string= it short) versions)
+          short
+        (let ((possible-versions
+               (-filter
+                (lambda (version)
+                  (s-starts-with? short version))
+                versions)))
+          (-min-by 'string< possible-versions))))))
+
 (defun nvm-use (version &optional callback)
   "Activate Node VERSION.
 
 If CALLBACK is specified, active in that scope and then reset to
 previously used version."
+  (setq version (nvm--find-exact-version-for version))
   (if (nvm--version-installed? version)
       (let ((prev-version nvm-current-version))
         (setenv "NVM_BIN" (f-join nvm-dir version "bin"))

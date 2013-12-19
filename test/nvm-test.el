@@ -41,6 +41,12 @@
     (nvm-use "v0.10.1" (lambda () (error "BooM"))))
    (should-use-version "v0.8.2")))
 
+(ert-deftest nvm-use-test/short-version ()
+  (with-sandbox
+   (stub nvm--installed-versions => '("v0.10.1"))
+   (nvm-use "0.10")
+   (should-use-version "v0.10.1")))
+
 
 ;;;; nvm-use-for
 
@@ -80,3 +86,31 @@
    (stub nvm--installed-versions => '("v0.8.2"))
    (nvm-use-for)
    (should-use-version "v0.8.2")))
+
+(ert-deftest nvm-use-for-test/short-version ()
+  (with-sandbox
+   (write-nvmrc "v0.10")
+   (stub nvm--installed-versions => '("v0.8.2" "v0.10.1"))
+   (nvm-use-for nvm-test/sandbox-path)
+   (should-use-version "v0.10.1")))
+
+
+;;;; nvm--find-exact-version-for
+
+(ert-deftest nvm--find-exact-version-for-test ()
+  (with-mock
+   (stub nvm--installed-versions => '("v0.8.2" "v0.8.8" "v0.6.0" "v0.10.7" "v0.10.2"))
+   (should-not (nvm--find-exact-version-for "0"))
+   (should-not (nvm--find-exact-version-for "v0"))
+   (should-not (nvm--find-exact-version-for "0.3"))
+   (should-not (nvm--find-exact-version-for "v0.6.1"))
+   (should-not (nvm--find-exact-version-for "v0.6.0.1"))
+   (should-not (nvm--find-exact-version-for "merry christmas"))
+   (should (string= (nvm--find-exact-version-for "v0.6.0") "v0.6.0"))
+   (should (string= (nvm--find-exact-version-for "v0.8.2") "v0.8.2"))
+   (should (string= (nvm--find-exact-version-for "v0.10.7") "v0.10.7"))
+   (should (string= (nvm--find-exact-version-for "v0.6") "v0.6.0"))
+   (should (string= (nvm--find-exact-version-for "0.8") "v0.8.8"))
+   (should (string= (nvm--find-exact-version-for "v0.8") "v0.8.8"))
+   (should (string= (nvm--find-exact-version-for "v0.10") "v0.10.7"))
+   (should (string= (nvm--find-exact-version-for "0.10") "v0.10.7"))))

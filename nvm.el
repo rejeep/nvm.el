@@ -99,8 +99,15 @@ activate the version specified in that file.
 
 If CALLBACK is specified, active in that scope and then reset to
 previously used version."
-
-  )
+  (unless path
+    (setq path default-directory))
+  (-if-let (nvmrc-path
+            (f-traverse-upwards
+             (lambda (dir)
+               (f-file? (f-expand ".nvmrc" dir)))
+             path))
+      (nvm-use (f-read (f-expand ".nvmrc" nvmrc-path)) callback)
+    (error "No .nvmrc found for %s" path)))
 
 (provide 'nvm)
 

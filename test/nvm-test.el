@@ -41,6 +41,21 @@
     (nvm-use "v0.10.1" (lambda () (error "BooM"))))
    (should-use-version "v0.8.2")))
 
+(ert-deftest nvm-use-test/version-available-with-callback-that-errors-no-previous ()
+  (with-sandbox
+   (stub nvm--installed-versions => '("v0.8.2" "v0.10.1"))
+   ;; NOTE: We are not actually testing what we say we are. It's hard
+   ;; to do because the error we are expecting is a
+   ;; 'wrong-type-argument error, but the callback error is the one
+   ;; that is caught.
+   ;;
+   ;; The problem before was that if the callback fails and there is
+   ;; no previous version, we previously tried to set nil as version.
+   ;;
+   ;; No idea how to actually test this...?
+   (should-error
+    (nvm-use "v0.10.1" (lambda () (error "BooM"))))))
+
 (ert-deftest nvm-use-test/short-version ()
   (with-sandbox
    (stub nvm--installed-versions => '("v0.10.1"))

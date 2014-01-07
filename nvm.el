@@ -107,7 +107,7 @@ previously used version."
         (when callback
           (unwind-protect
               (funcall callback)
-            (nvm-use prev-version))))
+            (when prev-version (nvm-use prev-version)))))
     (error "No such version %s" version)))
 
 (defun nvm-use-for (&optional path callback)

@@ -125,7 +125,7 @@ previously used version."
              (lambda (dir)
                (f-file? (f-expand ".nvmrc" dir)))
              path))
-      (nvm-use (f-read (f-expand ".nvmrc" nvmrc-path)) callback)
+      (nvm-use (s-trim (f-read (f-expand ".nvmrc" nvmrc-path))) callback)
     (error "No .nvmrc found for %s" path)))
 
 (provide 'nvm)

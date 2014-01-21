@@ -109,6 +109,13 @@
    (nvm-use-for nvm-test/sandbox-path)
    (should-use-version "v0.10.1")))
 
+(ert-deftest nvm-use-for-test/newlines ()
+  (with-sandbox
+   (write-nvmrc "\nv0.10\n")
+   (stub nvm--installed-versions => '("v0.8.2" "v0.10.1"))
+   (nvm-use-for nvm-test/sandbox-path)
+   (should-use-version "v0.10.1")))
+
 
 ;;;; nvm--find-exact-version-for
 

@@ -55,12 +55,12 @@
   "Current active version.")
 
 (defun nvm--installed-versions ()
-  (--map
-   (f-filename it)
-   (f-directories
-    nvm-dir
-    (lambda (directory)
-      (s-matches? (concat "^" nvm-version-re "$") (f-filename directory))))))
+  (let ((match-fn (lambda (directory)
+              (s-matches? (concat "^" nvm-version-re "$") (f-filename directory)))))
+    (--map (f-filename it)
+           (append
+            (f-directories nvm-dir match-fn)
+            (f-directories (f-join nvm-dir "versions" "node") match-fn)))))
 
 (defun nvm--version-installed? (version)
   "Return true if VERSION is installed, false otherwise."

@@ -27,4 +27,5 @@
 
 (require 'ert)
 (require 'el-mock)
+(require 'cl-lib)
 (require 'nvm (f-expand "nvm" nvm-test/root-path))

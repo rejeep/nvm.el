@@ -78,7 +78,7 @@
   "Makes runtime names match those in nvm ls"
   (if (string= "node" runtime)
       (f-filename path)
-    (concat (nvm--clean-runtime-name runtime) "-" (f-filename it))))
+    (concat (nvm--clean-runtime-name runtime) "-" (f-filename path))))
 
 (defun nvm--version-directories-new (match-fn)
   (when (nvm--using-new-path-schema?))

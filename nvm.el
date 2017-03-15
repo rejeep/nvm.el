@@ -137,14 +137,12 @@ previously used version."
                       (s-matches? path-re path))
                     (parse-colon-path (getenv "PATH"))))))
             (setenv "PATH" (s-join path-separator paths))
-            (unless callback
-              (setq exec-path (cons new-bin-path (--remove (s-matches? path-re it) exec-path)))))
+            (setq exec-path (cons new-bin-path (--remove (s-matches? path-re it) exec-path))))
           (setq nvm-current-version version)
           (when callback
-            (let ((exec-path (cons new-bin-path (--remove (s-matches? path-re it) exec-path))))
-              (unwind-protect
-                  (funcall callback)
-                (when prev-version (nvm-use (car prev-version)))))))
+            (unwind-protect
+                (funcall callback)
+              (when prev-version (nvm-use (car prev-version))))))
       (error "No such version %s" version))))
 
 ;;;###autoload

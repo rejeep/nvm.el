@@ -7,12 +7,14 @@
 (defun should-use-version (version)
   (should-have-env "NVM_BIN" (f-join nvm-dir version "bin"))
   (should-have-env "NVM_PATH" (f-join nvm-dir version "lib" "node"))
-  (should-have-env "PATH" (concat (f-full (f-join nvm-dir version "bin")) ":/path/to/foo/bin/:/path/to/bar/bin/")))
+  (should-have-env "PATH" (concat (f-full (f-join nvm-dir version "bin")) ":/path/to/foo/bin/:/path/to/bar/bin/"))
+  (should (string= (car exec-path) (f-join nvm-dir version "bin"))))
 
 (defun should-use-new-version (runtime version)
   (should-have-env "NVM_BIN" (f-join nvm-dir "versions" runtime version "bin"))
   (should-have-env "NVM_PATH" (f-join nvm-dir "versions" runtime version "lib" "node"))
-  (should-have-env "PATH" (concat (f-full (f-join nvm-dir "versions" runtime version "bin")) ":/path/to/foo/bin/:/path/to/bar/bin/")))
+  (should-have-env "PATH" (concat (f-full (f-join nvm-dir "versions" runtime version "bin")) ":/path/to/foo/bin/:/path/to/bar/bin/"))
+  (should (string= (car exec-path) (f-join nvm-dir "versions" runtime version "bin"))))
 
 (defun stub-old-tuples-for (versions)
   (let ((as-tuple (lambda (version)

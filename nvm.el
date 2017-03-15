@@ -128,19 +128,23 @@ previously used version."
           (setenv "NVM_BIN" (f-join version-path "bin"))
           (setenv "NVM_PATH" (f-join version-path "lib" "node"))
           (let* ((path-re (concat "^" (f-join nvm-dir nvm-runtime-re) nvm-version-re "/bin/?$"))
+                 (new-bin-path (f-full (f-join version-path "bin")))
                  (paths
                   (cons
-                   (f-full (f-join version-path "bin"))
+                   new-bin-path
                    (-reject
                     (lambda (path)
                       (s-matches? path-re path))
                     (parse-colon-path (getenv "PATH"))))))
-            (setenv "PATH" (s-join path-separator paths)))
+            (setenv "PATH" (s-join path-separator paths))
+            (unless callback
+              (setq exec-path (cons new-bin-path (--remove (s-matches? path-re it) exec-path)))))
           (setq nvm-current-version version)
           (when callback
-            (unwind-protect
-                (funcall callback)
-              (when prev-version (nvm-use (car prev-version))))))
+            (let ((exec-path (cons new-bin-path (--remove (s-matches? path-re it) exec-path))))
+              (unwind-protect
+                  (funcall callback)
+                (when prev-version (nvm-use (car prev-version)))))))
       (error "No such version %s" version))))
 
 ;;;###autoload

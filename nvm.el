@@ -115,6 +115,7 @@ function will return the most recent patch version."
           (-min-by (-on 'string< (lambda (version) (car version)))
                    possible-versions))))))
 
+;;;###autoload
 (defun nvm-use (version &optional callback)
   "Activate Node VERSION.
 
@@ -142,6 +143,7 @@ previously used version."
               (when prev-version (nvm-use (car prev-version))))))
       (error "No such version %s" version))))
 
+;;;###autoload
 (defun nvm-use-for (&optional path callback)
   "Activate Node for PATH or `default-directory'.
 

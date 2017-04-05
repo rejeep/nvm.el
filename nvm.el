@@ -115,12 +115,27 @@ function will return the most recent patch version."
           (-min-by (-on 'string< (lambda (version) (car version)))
                    possible-versions))))))
 
+(defun nvm--exists-alias ()
+  (let* ((path (concat nvm-dir "alias"))
+         (files (f-files path))
+         (ofs (f-directories path)))
+    (--map (cons it (s-chomp (f-read it))) files)))
+
+(defun nvm--find-alias-version-for (alias)
+  "Find alias refer version"
+  (let* ((aliases (nvm--exists-alias))
+         (aliaspair (car (--filter (s-match alias (car it)) aliases))))
+    (when aliaspair
+      (cdr aliaspair))))
+
 (defun nvm-use (version &optional callback)
   "Activate Node VERSION.
 
 If CALLBACK is specified, active in that scope and then reset to
 previously used version."
-  (setq version (nvm--find-exact-version-for version))
+  (setq version (or
+                 (nvm--find-exact-version-for version)
+                 (nvm--find-exact-version-for (nvm--find-alias-version-for version))))
   (let ((version-path (-last-item version)))
     (if (nvm--version-installed? (car version))
         (let ((prev-version nvm-current-version))

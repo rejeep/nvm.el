@@ -149,7 +149,8 @@ previously used version."
                     (lambda (path)
                       (s-matches? path-re path))
                     (parse-colon-path (getenv "PATH"))))))
-            (setenv "PATH" (s-join path-separator paths)))
+            (setenv "PATH" (s-join path-separator paths))
+            (setq exec-path paths))
           (setq nvm-current-version version)
           (when callback
             (unwind-protect

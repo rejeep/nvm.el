@@ -166,6 +166,15 @@ previously used version."
       (nvm-use (s-trim (f-read (f-expand ".nvmrc" nvmrc-path))) callback)
     (error "No .nvmrc found for %s" path)))
 
+;;;###autoload
+(defun nvm-use-for-buffer ()
+  "Activate Node based on an .nvmrc for the current file.
+If buffer is not visiting a file, do nothing."
+  (when buffer-file-name
+    (condition-case err
+        (nvm-use-for buffer-file-name)
+      (error (message "%s" err)))))
+
 (provide 'nvm)
 
 ;;; nvm.el ends here

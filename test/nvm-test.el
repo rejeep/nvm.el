@@ -163,4 +163,5 @@
    (should (string= (car (nvm--find-exact-version-for "0.8")) "v0.8.8"))
    (should (string= (car (nvm--find-exact-version-for "v0.8")) "v0.8.8"))
    (should (string= (car (nvm--find-exact-version-for "v0.10")) "v0.10.7"))
-   (should (string= (car (nvm--find-exact-version-for "0.10")) "v0.10.7"))))
+   (should (string= (car (nvm--find-exact-version-for "0.10")) "v0.10.7"))
+   (should (string= (car (nvm--find-exact-version-for "stable")) "v0.10.7"))))

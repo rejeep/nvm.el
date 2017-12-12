@@ -137,11 +137,12 @@ function will return the most recent patch version."
 stable is deprecated. is alias to node
 "
   (let* ((aliaspath (f-join nvm-dir nvm-alias-dirname))
-         (alias (--map
-                 (s-chop-prefix (s-concat aliaspath (f-path-separator)) it)
-                 (nvm--get-aliases aliaspath))))
+         (alias
+          (--map
+           (s-chop-prefix (s-concat aliaspath (f-path-separator)) it)
+           (nvm--get-aliases aliaspath))))
     (if (-contains-p alias name)
-        (nvm--expand-name-version-for (s-trim (f-read-text (f-join aliaspath name))))
+        (nvm--expand-name-version-for (funcall (-compose s-trim f-read-text) (f-join aliaspath name)))
       name)))
 
 (defun nvm-use (version &optional callback)
@@ -163,8 +164,7 @@ previously used version."
                     (lambda (path)
                       (s-matches? path-re path))
                     (parse-colon-path (getenv "PATH"))))))
-            (setenv "PATH" (s-join path-separator paths))
-            (setq exec-path paths))
+            (setenv "PATH" (s-join path-separator paths)))
           (setq nvm-current-version version)
           (when callback
             (unwind-protect

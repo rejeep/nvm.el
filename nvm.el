@@ -124,7 +124,6 @@ function will return the most recent patch version."
                                (s-chop-prefix "v" (car it))) versions))
       (when (s-matches? "v?[0-9]+\.[0-9]+\\(\.[0-9]+\\)?$" short)
         (unless (or (s-starts-with? "v" short)
-                    (s-starts-with? "stable" short)
                     (s-starts-with? "node" short)
                     (s-starts-with? "iojs" short))
           (setq short (concat "v" short)))

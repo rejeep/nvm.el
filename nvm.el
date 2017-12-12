@@ -43,6 +43,10 @@
   :group 'tools
   :link '(url-link :tag "Github" "https://github.com/rejeep/nvm.el"))
 
+(defconst nvm-alias-dirname
+  "alias"
+  "Alias dirname")
+
 (defconst nvm-version-re
   "v[0-9]+\.[0-9]+\.[0-9]+"
   "Regex matching a Node version.")
@@ -92,28 +96,50 @@
   "Return true if VERSION is installed, false otherwise."
   (--any? (string= (car it) version) (nvm--installed-versions)))
 
+(defun nvm--get-aliases (path)
+  "Get all alias in alias"
+  (if (f-directory-p path)
+      (-flatten (-map 'nvm--get-aliases (f-entries path)))
+    (list path)))
+
+(defun nvm--expand-name-version-for (name)
+  "Find alias/stable/lts/iojs version
+stable is deprecated. is alias to node
+"
+  (let* ((aliaspath (f-join nvm-dir nvm-alias-dirname))
+         (alias (--map
+                 (s-chop-prefix (s-concat aliaspath (f-path-separator)) it)
+                 (nvm--get-aliases aliaspath))))
+    (if (-contains-p alias name)
+        (nvm--expand-name-version-for (s-trim (f-read-text (f-join aliaspath name))))
+      name)))
 (defun nvm--find-exact-version-for (short)
   "Find most suitable version for SHORT.
-
 SHORT is a string containing major and minor version.  This
 function will return the most recent patch version."
-  (when (s-matches? "v?[0-9]+\.[0-9]+\\(\.[0-9]+\\)?$" short)
-    (unless (or (s-starts-with? "v" short)
-                 (s-starts-with? "node" short)
-                 (s-starts-with? "iojs" short))
-      (setq short (concat "v" short)))
-    (let* ((versions (nvm--installed-versions))
-           (first-version
-            (--first (string= (car it) short) versions)))
-      (if first-version
-          first-version
-        (let ((possible-versions
-               (-filter
-                (lambda (version)
-                  (s-contains? short (car version)))
-                versions)))
-          (-min-by (-on 'string< (lambda (version) (car version)))
-                   possible-versions))))))
+  (let ((versions (nvm--installed-versions)))
+    (if (s-starts-with? "stable" short)
+          ;; find latest version for stable
+        (car (--sort (version< (s-chop-prefix "v" (car other))
+                               (s-chop-prefix "v" (car it))) versions))
+      (when (s-matches? "v?[0-9]+\.[0-9]+\\(\.[0-9]+\\)?$" short)
+        (unless (or (s-starts-with? "v" short)
+                    (s-starts-with? "stable" short)
+                    (s-starts-with? "node" short)
+                    (s-starts-with? "iojs" short))
+          (setq short (concat "v" short)))
+        (let ((first-version
+                (--first (string= (car it) short) versions)))
+          (if first-version
+              first-version
+            (let ((possible-versions
+                   (-filter
+                    (lambda (version)
+                      (s-contains? short (car version)))
+                    versions)))
+              (-min-by (-on 'string< (lambda (version) (car version)))
+                       possible-versions)))
+          )))))
 
 ;;;###autoload
 (defun nvm-use (version &optional callback)
@@ -121,7 +147,7 @@ function will return the most recent patch version."
 
 If CALLBACK is specified, active in that scope and then reset to
 previously used version."
-  (setq version (nvm--find-exact-version-for version))
+  (setq version (nvm--find-exact-version-for (nvm--expand-name-version-for version)))
   (let ((version-path (-last-item version)))
     (if (nvm--version-installed? (car version))
         (let ((prev-version nvm-current-version)

@@ -54,6 +54,10 @@
 (defconst nvm-runtime-re
   "\\(?:versions/node/\\|versions/io.js/\\)?")
 
+(defconst nvm-alias-dirname
+  "aliasas"
+  "Alias dirname")
+
 (defcustom nvm-dir (f-full "~/.nvm")
   "Full path to Nvm installation directory."
   :group 'nvm
@@ -99,13 +103,13 @@
 
 (defun nvm--find-exact-version-for (short)
   "Find most suitable version for SHORT.
-
 SHORT is a string containing major and minor version.  This
 function will return the most recent patch version."
   (let ((versions (nvm--installed-versions)))
     (if (s-starts-with? "stable" short)
           ;; find latest version for stable
-          (car (--sort (string< (car other) (car it)) versions))
+        (car (--sort (version< (s-chop-prefix "v" (car other))
+                               (s-chop-prefix "v" (car it))) versions))
       (when (s-matches? "v?[0-9]+\.[0-9]+\\(\.[0-9]+\\)?$" short)
         (unless (or (s-starts-with? "v" short)
                     (s-starts-with? "stable" short)
@@ -129,22 +133,21 @@ function will return the most recent patch version."
   "Get all alias in alias"
   (if (f-directory-p path)
       (-flatten (-map 'nvm--get-aliases (f-entries path)))
-    path))
+    (list path)))
 
 (defun nvm--expand-name-version-for (name)
   "Find alias/stable/lts/iojs version
-
 stable is deprecated. is alias to node
 "
   (let* ((aliaspath (f-join nvm-dir nvm-alias-dirname))
-         (alias
-          (--map
-           (s-chop-prefix (s-concat aliaspath (f-path-separator)) it)
-           (nvm--get-aliases aliaspath))))
+         (alias (--map
+                 (s-chop-prefix (s-concat aliaspath (f-path-separator)) it)
+                 (nvm--get-aliases aliaspath))))
     (if (-contains-p alias name)
-        (nvm--expand-name-version-for (funcall (-compose s-trim f-read-text) (f-join aliaspath name)))
+        (nvm--expand-name-version-for (s-trim (f-read-text (f-join aliaspath name))))
       name)))
 
+;;;###autoload
 (defun nvm-use (version &optional callback)
   "Activate Node VERSION.
 
@@ -153,25 +156,30 @@ previously used version."
   (setq version (nvm--find-exact-version-for (nvm--expand-name-version-for version)))
   (let ((version-path (-last-item version)))
     (if (nvm--version-installed? (car version))
-        (let ((prev-version nvm-current-version))
+        (let ((prev-version nvm-current-version)
+              (prev-exec-path exec-path))
           (setenv "NVM_BIN" (f-join version-path "bin"))
           (setenv "NVM_PATH" (f-join version-path "lib" "node"))
           (let* ((path-re (concat "^" (f-join nvm-dir nvm-runtime-re) nvm-version-re "/bin/?$"))
+                 (new-bin-path (f-full (f-join version-path "bin")))
                  (paths
                   (cons
-                   (f-full (f-join version-path "bin"))
+                   new-bin-path
                    (-reject
                     (lambda (path)
                       (s-matches? path-re path))
                     (parse-colon-path (getenv "PATH"))))))
-            (setenv "PATH" (s-join path-separator paths)))
+            (setenv "PATH" (s-join path-separator paths))
+            (setq exec-path (cons new-bin-path (--remove (s-matches? path-re it) exec-path))))
           (setq nvm-current-version version)
           (when callback
             (unwind-protect
                 (funcall callback)
-              (when prev-version (nvm-use (car prev-version))))))
+              (when prev-version (nvm-use (car prev-version)))
+              (setq exec-path prev-exec-path))))
       (error "No such version %s" version))))
 
+;;;###autoload
 (defun nvm-use-for (&optional path callback)
   "Activate Node for PATH or `default-directory'.
 

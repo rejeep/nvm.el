@@ -165,4 +165,16 @@
    (should (string= (car (nvm--find-exact-version-for "0.8")) "v0.8.8"))
    (should (string= (car (nvm--find-exact-version-for "v0.8")) "v0.8.8"))
    (should (string= (car (nvm--find-exact-version-for "v0.10")) "v0.10.7"))
-   (should (string= (car (nvm--find-exact-version-for "0.10")) "v0.10.7"))))
+   (should (string= (car (nvm--find-exact-version-for "0.10")) "v0.10.7"))
+   (should (string= (car (nvm--find-exact-version-for "stable")) "v0.10.7"))))
+
+(ert-deftest nvm--find-exact-version-for-test/alias ()
+  (with-sandbox
+   (write-nvmrc "default")
+   (stub
+    nvm--installed-versions =>
+    (stub-old-tuples-for '("v0.8.2" "v0.8.8" "v0.6.0" "v0.10.7" "v0.10.2")))
+   (stub nvm--get-aliases => '("default"))
+   (stub f-read-text => "stable")
+   (nvm-use-for nvm-test/sandbox-path)
+   (should-use-version "v0.10.7")))

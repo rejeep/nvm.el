@@ -112,7 +112,6 @@ function will return the most recent patch version."
                                (s-chop-prefix "v" (car it))) versions))
       (when (s-matches? "v?[0-9]+\.[0-9]+\\(\.[0-9]+\\)?$" short)
         (unless (or (s-starts-with? "v" short)
-                    (s-starts-with? "stable" short)
                     (s-starts-with? "node" short)
                     (s-starts-with? "iojs" short))
           (setq short (concat "v" short)))
@@ -146,7 +145,6 @@ stable is deprecated. is alias to node
     (if (-contains-p alias name)
         (nvm--expand-name-version-for (s-trim (f-read-text (f-join aliaspath name))))
       name)))
-
 ;;;###autoload
 (defun nvm-use (version &optional callback)
   "Activate Node VERSION.

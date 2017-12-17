@@ -166,3 +166,34 @@
    (should (string= (car (nvm--find-exact-version-for "v0.8")) "v0.8.8"))
    (should (string= (car (nvm--find-exact-version-for "v0.10")) "v0.10.7"))
    (should (string= (car (nvm--find-exact-version-for "0.10")) "v0.10.7"))))
+
+;;;; nvm-use-for-buffer
+
+(ert-deftest nvm-use-for-buffer-not-visiting ()
+  (with-temp-buffer
+    ;; assert that there is no error:
+    (nvm-use-for-buffer)))
+
+(ert-deftest nvm-use-for-buffer-no-nvmrc ()
+  (with-sandbox
+   (stub nvm--installed-versions => (stub-old-tuples-for '("v0.8.2" "v0.10.1")))
+   (with-temp-buffer
+     (setq buffer-file-name (f-expand "test.js" nvm-test/sandbox-path))
+     ;; can't use should-use-version since we're not moving the node
+     ;; path to the front
+     (let ((old-path (getenv "PATH"))
+           (old-nvm-bin (getenv "NVM_BIN"))
+           (old-nvm-path (getenv "NVM_PATH")))
+       (nvm-use-for-buffer)
+       (should-have-env "NVM_BIN" old-nvm-bin)
+       (should-have-env "NVM_PATH" old-nvm-path)
+       (should-have-env "PATH" old-path)))))
+
+(ert-deftest nvm-use-for-buffer-with-nvmrc ()
+  (with-sandbox
+   (stub nvm--installed-versions => (stub-old-tuples-for '("v0.8.2" "v0.10.1")))
+   (with-temp-buffer
+     (setq buffer-file-name (f-expand "test.js" nvm-test/sandbox-path))
+     (write-nvmrc "v0.10.1")
+     (nvm-use-for-buffer)
+     (should-use-version "v0.10.1"))))

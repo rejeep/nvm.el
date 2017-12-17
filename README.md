@@ -22,6 +22,12 @@ callback and then switch back to the previously used version.
 Read version from `.nvmrc` in `path` (or `default-directory`) and use
 that. Second `callback` argument is same as for `nvm-use`.
 
+### nvm-use-for-buffer `()`
+
+Call `nvm-use-for` on the file visited by the current buffer. Suitable
+for use in a mode hook to automatically activate the correct node
+version for a file.
+
 ## Contribution
 
 Contribution is much welcome!

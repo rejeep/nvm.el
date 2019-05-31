@@ -50,7 +50,7 @@
 (defconst nvm-runtime-re
   "\\(?:versions/node/\\|versions/io.js/\\)?")
 
-(defcustom nvm-dir (f-full "~/.nvm")
+(defcustom nvm-dir (or (getenv "NVM_DIR") (f-full "~/.nvm"))
   "Full path to Nvm installation directory."
   :group 'nvm
   :type 'directory)

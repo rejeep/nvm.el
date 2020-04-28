@@ -38,6 +38,13 @@
    (nvm-use "v0.10.1")
    (should-use-version "v0.10.1")))
 
+(ert-deftest nvm-use-test/version-available-no-previous-trailing-colon-in-path ()
+  (with-sandbox
+   (setenv "PATH" "/path/to/foo/bin/:/path/to/bar/bin/:")
+   (stub nvm--installed-versions => (stub-old-tuples-for '("v0.10.1")))
+   (nvm-use "v0.10.1")
+   (should-use-version "v0.10.1")))
+
 (ert-deftest nvm-use-test/version-new-directory-style-no-callback ()
   (with-sandbox
    (stub nvm--installed-versions =>

@@ -135,7 +135,7 @@ previously used version."
                    new-bin-path
                    (-reject
                     (lambda (path)
-                      (s-matches? path-re path))
+                      (if path (s-matches? path-re path) t))
                     (parse-colon-path (getenv "PATH"))))))
             (setenv "PATH" (s-join path-separator paths))
             (setq exec-path (cons new-bin-path (--remove (s-matches? path-re it) exec-path))))

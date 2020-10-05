@@ -99,6 +99,12 @@
    (nvm-use "0.10")
    (should-use-version "v0.10.1")))
 
+(ert-deftest nvm-use-test/major-version ()
+  (with-sandbox
+   (stub nvm--installed-versions => (stub-old-tuples-for '("v0.10.1" "v12.1.0" "v12.0.1")))
+   (nvm-use "12")
+   (should-use-version "v12.1.0")))
+
 ;;;; nvm-use-for
 
 (ert-deftest nvm-use-for-test/no-config ()
@@ -158,9 +164,9 @@
   (with-mock
    (stub
     nvm--installed-versions =>
-    (stub-old-tuples-for '("v0.8.2" "v0.8.8" "v0.6.0" "v0.10.7" "v0.10.2")))
-   (should-not (nvm--find-exact-version-for "0"))
-   (should-not (nvm--find-exact-version-for "v0"))
+    (stub-old-tuples-for '("v0.8.2" "v0.8.8" "v0.6.0" "v0.10.7" "v0.10.2" "v0.10.11")))
+   (should (string= (car (nvm--find-exact-version-for "0")) "v0.10.11"))
+   (should (string= (car (nvm--find-exact-version-for "v0")) "v0.10.11"))
    (should-not (nvm--find-exact-version-for "0.3"))
    (should-not (nvm--find-exact-version-for "v0.6.1"))
    (should-not (nvm--find-exact-version-for "v0.6.0.1"))
@@ -171,8 +177,8 @@
    (should (string= (car (nvm--find-exact-version-for "v0.6")) "v0.6.0"))
    (should (string= (car (nvm--find-exact-version-for "0.8")) "v0.8.8"))
    (should (string= (car (nvm--find-exact-version-for "v0.8")) "v0.8.8"))
-   (should (string= (car (nvm--find-exact-version-for "v0.10")) "v0.10.7"))
-   (should (string= (car (nvm--find-exact-version-for "0.10")) "v0.10.7"))))
+   (should (string= (car (nvm--find-exact-version-for "v0.10")) "v0.10.11"))
+   (should (string= (car (nvm--find-exact-version-for "0.10")) "v0.10.11"))))
 
 ;;;; nvm-use-for-buffer
 

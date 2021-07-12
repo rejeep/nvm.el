@@ -146,6 +146,9 @@ and (if supplied, minor) match."
 
 If CALLBACK is specified, active in that scope and then reset to
 previously used version."
+  (interactive (list (ido-completing-read "Version: " (seq-map
+				    (lambda (ver) (car ver))
+				    (nvm--installed-versions)))))
   (setq version (nvm--find-exact-version-for version))
   (let ((version-path (-last-item version)))
     (if (nvm--version-installed? (car version))

@@ -4,7 +4,16 @@ Manage Node versions within Emacs
 
 ## Installation
 
-Add `nvm` to your [Cask](https://github.com/cask/cask) file:
+### Using quelpa
+```lisp
+(use-package nvm
+  :quelpa ((nvm
+	    :fetcher github
+	    :repo "rejeep/nvm.el")
+	   :upgrade t)
+```
+
+### Or Add `nvm` to your [Cask](https://github.com/cask/cask) file:
 
 ```lisp
 (depends-on "nvm")

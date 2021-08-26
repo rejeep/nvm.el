@@ -101,7 +101,7 @@
            (lambda (runtime)
              (--map (list (nvm--version-name (f-filename runtime) it) it)
                     (f-directories runtime match-fn)))))
-      (-flatten-n 1 (-map runtime-options (f-directories (f-join nvm-dir "versions"))))))
+      (-flatten-n 1 (-map runtime-options (f-directories (f-join nvm-dir "versions")))))))
 
 (defun nvm--version-installed? (version)
   "Return true if VERSION is installed, false otherwise."

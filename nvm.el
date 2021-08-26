@@ -96,7 +96,7 @@
     (concat (nvm--clean-runtime-name runtime) "-" (f-filename path))))
 
 (defun nvm--version-directories-new (match-fn)
-  (when (nvm--using-new-path-schema?))
+  (when (nvm--using-new-path-schema?)
     (let ((runtime-options
            (lambda (runtime)
              (--map (list (nvm--version-name (f-filename runtime) it) it)

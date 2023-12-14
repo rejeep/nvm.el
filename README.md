@@ -4,10 +4,22 @@ Manage Node versions within Emacs
 
 ## Installation
 
+### Using Cask
+
 Add `nvm` to your [Cask](https://github.com/cask/cask) file:
 
 ```lisp
 (depends-on "nvm")
+```
+
+### Using `use-package` and [straight.el](https://github.com/radian-software/straight.el)
+
+```
+(use-package nvm
+  :straight (:host github :repo "rejeep/nvm.el")
+  :config
+  ;; Optionally set a default node version
+  (nvm-use "18"))
 ```
 
 ## DSL

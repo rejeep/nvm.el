@@ -14,7 +14,7 @@ Add `nvm` to your [Cask](https://github.com/cask/cask) file:
 
 ### Using `use-package` and [straight.el](https://github.com/radian-software/straight.el)
 
-```
+```elisp
 (use-package nvm
   :straight (:host github :repo "rejeep/nvm.el")
   :config

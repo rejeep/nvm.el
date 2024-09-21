@@ -54,6 +54,11 @@
   :group 'nvm
   :type 'directory)
 
+(defcustom nvm-completing-function 'completing-read
+  "Completing function for calling `NVM-USE'."
+  :group 'nvm
+  :type 'function)
+
 (defvar nvm-current-version nil
   "Current active version.")
 
@@ -146,6 +151,8 @@ and (if supplied, minor) match."
 
 If CALLBACK is specified, active in that scope and then reset to
 previously used version."
+  (interactive
+   (list (funcall nvm-completing-function "Version: " (nvm--installed-versions))))
   (setq version (nvm--find-exact-version-for version))
   (let ((version-path (-last-item version)))
     (if (nvm--version-installed? (car version))

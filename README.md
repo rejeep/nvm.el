@@ -22,6 +22,15 @@ Add `nvm` to your [Cask](https://github.com/cask/cask) file:
   (nvm-use "18"))
 ```
 
+### Using [Quelpa](https://github.com/quelpa/quelpa-use-package)
+
+```elisp
+(use-package nvm
+  :quelpa ((nvm :fetcher github
+                :repo "rejeep/nvm.el")
+                :upgrade t)
+```
+
 ## DSL
 
 ### nvm-use `(version &optional callback)`
